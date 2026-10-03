@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, date
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, UniqueConstraint, Date, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base_model import BaseModel
@@ -32,4 +32,17 @@ class Task(BaseModel):
         cascade='all, delete-orphan',
         passive_deletes=True,
         order_by='TaskDetail.position',
+    )
+    date: Mapped[date] = mapped_column(
+        Date,
+        default=date.today,
+        nullable=False,
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            'user_id', 
+            'date', 
+            name='uq_user_task_date'
+        ),
     )

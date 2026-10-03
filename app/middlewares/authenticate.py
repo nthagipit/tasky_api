@@ -1,6 +1,7 @@
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from app.core.exception import AppException
 from app.models.user_model import User
 from app.db.base import get_db
 from jose import jwt, JWTError
@@ -11,9 +12,9 @@ security = HTTPBearer()
 def get_current_user(credentials: HTTPAuthorizationCredentials=Depends(security), db: Session=Depends(get_db)) ->User:
     token = credentials.credentials
 
-    credentials_exception = HTTPException(
+    credentials_exception = AppException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
+        message="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
@@ -29,9 +30,9 @@ def get_current_user(credentials: HTTPAuthorizationCredentials=Depends(security)
     user = db.query(User).filter(User.id == user_id).first()
 
     if user is None:
-        raise HTTPException(
+        raise AppException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found",
+            message="User not found",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
@@ -41,9 +42,9 @@ def get_current_user(credentials: HTTPAuthorizationCredentials=Depends(security)
 def require_roles(*roles: str):
     def role_checker(current_user: User = Depends(get_current_user)):
         if current_user.role not in roles:
-            raise HTTPException(
+            raise AppException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="You do not have permission to perform this action",
+                message="You do not have permission to perform this action",
             )
         return current_user
     return role_checker

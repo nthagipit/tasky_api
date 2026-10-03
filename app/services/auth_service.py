@@ -10,7 +10,7 @@ from app.core.security import  hash_password, verify_password
 from app.schemas.auth_schema import RegisterSchema
 from app.core.logging import logging
 
-logger = logging.getLogger("app.services.core_service_client")
+logger = logging.getLogger("app.services.auth_service")
 
 
 def login(data: LoginSchema, response: Response, db: Session ):
