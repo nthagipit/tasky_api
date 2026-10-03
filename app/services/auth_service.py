@@ -14,36 +14,39 @@ logger = logging.getLogger("app.services.auth_service")
 
 
 def login(data: LoginSchema, response: Response, db: Session ):
-    
-    user = (
-        db.query(User)
-        .filter(User.email == data.email)
-        .first()
-    )
-
-    if not user or not verify_password(
-        data.password,
-        user.hashed_password,
-    ):
-        logger.warning(f"Failed login attempt for email: {data.email}")
-        response.status_code = 401
-        return DataResponse.error(status_code=401,detail="Invalid email or password",)
-    
-    token = create_token(user.id, user.role)
-
-    refresh_token_record = RefreshToken(
-        token_hash=hash_password(token.refresh_token),
-        user_id=user.id,
-        expires_at=datetime.now(timezone.utc)
-        + token.refresh_token_expires,
-    )
-
     try:
+        user = (
+            db.query(User)
+            .filter(User.email == data.email)
+            .first()
+        )
+
+        if not user or not verify_password(
+            data.password,
+            user.hashed_password,
+        ):
+            logger.warning(f"Failed login attempt for email: {data.email}")
+            response.status_code = 401
+            return DataResponse.error(
+                status_code=401,
+                detail="Invalid email or password",
+            )
+
+        token = create_token(user.id, user.role)
+
+        refresh_token_record = RefreshToken(
+            token_hash=hash_password(token.refresh_token),
+            user_id=user.id,
+            expires_at=datetime.now(timezone.utc)
+            + token.refresh_token_expires,
+        )
+
         db.add(refresh_token_record)
         db.commit()
 
     except Exception:
         db.rollback()
+        logger.exception("Unexpected error while processing login")
         raise
 
     data_response = AuthResponseSchema(

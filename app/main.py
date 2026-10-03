@@ -1,4 +1,6 @@
 
+from app.core.logging import setup_logging
+
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from app.core.exception import AppException
@@ -9,6 +11,9 @@ from app.routers.auth_router import router as auth_router
 from app.routers.task_router import router as task_router
 from app.routers.task_detail_router import router as task_detail_router
 from app.schemas.base_schema import DataResponse
+
+setup_logging()
+
 # Base.metadata.create_all(bind=engine)
 
 app = FastAPI(

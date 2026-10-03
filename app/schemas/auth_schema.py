@@ -10,8 +10,6 @@ class RegisterSchema(BaseModel):
 
 
 class AuthResponseSchema(BaseModel):
-    id: str
-    email: str
     access_token: str
     expires_access_token: int
     refresh_token: str
