@@ -3,6 +3,7 @@ from datetime import timedelta
 
 class RefreshTokenSchema(BaseModel):
     refresh_token: str
+    
 class TokenResponseSchema(BaseModel):
     access_token: str
     refresh_token: str

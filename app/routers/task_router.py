@@ -6,16 +6,16 @@ from fastapi import APIRouter, Depends
 from app.models.user_model import User
 from app.db.base import get_db
 from app.schemas.base_schema import DataResponse
-from app.services.task_service import create_task_for_user, get_task_by_user_id, get_task_by_id, update_task_for_user, delete_task_for_user
+from app.services.task_service import create_task_for_user, get_task_today_by_user_id, get_task_by_id, update_task_for_user, delete_task_for_user
 from app.middlewares.authenticate import get_current_user
 from app.schemas.task_schema import TaskCreateSchema, TaskSchema
 
 
 router = APIRouter(prefix="/tasks", tags=["tasks"], dependencies=[Depends(get_current_user)])
 
-@router.get("/today", description="Get today's tasks for the authenticated user", response_model=DataResponse[list[TaskSchema]])
+@router.get("/today", description="Get today's tasks for the authenticated user", response_model=DataResponse[TaskSchema])
 async def get_tasks(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    return get_task_by_user_id(user, db)
+    return get_task_today_by_user_id(user, db)
 
 @router.post("/today", description="Create a new task for the authenticated user", response_model=DataResponse[TaskSchema], response_model_exclude_none=True)
 async def create_task(data: TaskCreateSchema,  db: Session = Depends(get_db), user: User = Depends(get_current_user)):

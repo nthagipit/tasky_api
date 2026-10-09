@@ -7,12 +7,17 @@ from app.models.user_model import User
 from app.schemas.base_schema import DataResponse
 from app.schemas.task_schema import TaskCreateSchema
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import func
+from datetime import timezone
 
 logger = logging.getLogger("app.services.task_service")
 
 
-def get_task_by_user_id(user: User, db: Session):
-    data =  db.query(Task).filter(Task.user_id == user.id).all()
+def get_task_today_by_user_id(user: User, db: Session):
+    data =  db.query(Task).filter(
+        Task.user_id == user.id, 
+        func.date(Task.created_at) == datetime.now(timezone.utc).date()
+        ).first()
 
     return DataResponse.custom_response("200", data=data, message="Tasks retrieved successfully")
 
